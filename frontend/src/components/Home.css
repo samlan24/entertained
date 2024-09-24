@@ -21,7 +21,7 @@ body {
     display: flex;
   }
 
-  .search-input {
+  .home-input {
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -43,3 +43,4 @@ body {
   .search-button:hover {
     background-color: #555;
   }
+

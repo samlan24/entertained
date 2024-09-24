@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
-import Recommendations from './Recommendations';
+import RecommendationGraph from './RecommendationGraph'; // Import the new component
 import ArtistInfo from './ArtistInfo';
-
 
 const Music = () => {
   const { artist } = useParams();
@@ -70,8 +69,10 @@ const Music = () => {
           <ArtistInfo artistInfo={artistInfo} />
           <div className="main-content">
             <h1>Music Recommendations</h1>
-            <Recommendations recommendations={recommendations} handleArtistClick={handleArtistClick} />
-
+            <RecommendationGraph
+              artists={recommendations}
+              onArtistClick={handleArtistClick} // Pass the click handler
+            />
           </div>
           {currentTrack && (
             <audio className="media-player" controls>

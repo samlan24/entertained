@@ -24,7 +24,7 @@ const Home = () => {
           value={artist}
           onChange={(e) => setArtist(e.target.value)}
           placeholder="Enter artist name"
-          className="search-input"
+          className="home-input"
         />
         <button type="submit" className="search-button">Search</button>
       </form>
