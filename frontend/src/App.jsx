@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
+import Music from './components/Music';
+import Movies from './components/Movies';
+import Blog from './components/Blog';
+import Navbar from './components/Navbar';
 
-function App() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('http://localhost:5000/')
-      .then(response => response.text())
-      .then(data => setMessage(data));
-  }, []);
-
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>React App</h1>
-        <p>{message}</p>
-      </header>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/music" element={<Music />} />
+        <Route path="/movies" element={<Movies />} />
+        <Route path="/blog" element={<Blog />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

@@ -1,0 +1,39 @@
+/* src/App.css */
+body {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto', sans-serif;
+  }
+
+
+/* src/App.css */
+.container {
+    display: flex;
+  }
+
+  .sidebar {
+    width: 25%;
+    padding: 20px;
+    background-color: #f4f4f4;
+  }
+
+  .main-content {
+    width: 75%;
+    padding: 20px;
+  }
+
+  .recommendations ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .recommendations li {
+    cursor: pointer;
+    padding: 5px 0;
+  }
+
+  .recommendations li:hover {
+    text-decoration: underline;
+  }
