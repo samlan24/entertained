@@ -1,5 +1,5 @@
 from . import movies
 
-@movies.route('/movies', methods=['GET'])
+@movies.route('/', methods=['GET'])
 def get_movies():
     return "hello movies"
