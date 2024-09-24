@@ -1,0 +1,45 @@
+/* src/components/Home.css */
+body {
+    font-family: 'Work Sans', sans-serif;
+  }
+.home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+
+  .search-form {
+    display: flex;
+  }
+
+  .search-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+  }
+
+  .search-button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .search-button:hover {
+    background-color: #555;
+  }
