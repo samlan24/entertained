@@ -24,7 +24,7 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
     // Initialize force simulation
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.distance))
-      .force("charge", d3.forceManyBody().strength(-500))
+      .force("charge", d3.forceManyBody().strength(-800))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     // Create nodes (circles and labels)
@@ -50,6 +50,7 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
     simulation.on("tick", () => {
       node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
+
   }, [artists, onArtistClick]); // Run effect whenever 'artists' or 'onArtistClick' prop changes
 
   return <svg id="graph"></svg>;

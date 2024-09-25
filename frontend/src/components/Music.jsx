@@ -68,7 +68,7 @@ const Music = () => {
         <>
           <ArtistInfo artistInfo={artistInfo} />
           <div className="main-content">
-            <h1>Music Recommendations</h1>
+            <h1 className='music-heading'>Music Recommendations</h1>
             <RecommendationGraph
               artists={recommendations}
               onArtistClick={handleArtistClick} // Pass the click handler
