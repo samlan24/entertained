@@ -10,20 +10,15 @@ const Music = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [artistInfo, setArtistInfo] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
-  const [recommendationsFetched, setRecommendationsFetched] = useState(false); // Flag to track if recommendations have been fetched
+  const [recommendationsFetched, setRecommendationsFetched] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (artist) {
       fetchArtistInfo(artist);
-    }
-  }, [artist]);
-
-  useEffect(() => {
-    if (artist && !recommendationsFetched) {
       handleSearch(artist);
     }
-  }, [artist, recommendationsFetched]);
+  }, [artist]);
 
   const handleSearch = async (searchArtist) => {
     try {
@@ -32,7 +27,7 @@ const Music = () => {
       if (JSON.stringify(newRecommendations) !== JSON.stringify(recommendations)) {
         setRecommendations(newRecommendations);
       }
-      setRecommendationsFetched(true); // Set the flag to true after fetching recommendations
+      setRecommendationsFetched(true);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     }
@@ -47,10 +42,6 @@ const Music = () => {
     }
   };
 
-  const handleTrackClick = (trackUrl) => {
-    setCurrentTrack(trackUrl);
-  };
-
   const handleArtistClick = (clickedArtist) => {
     const encodedArtist = encodeURIComponent(clickedArtist).replace(/%20/g, '+');
     navigate(`/music/${encodedArtist}`);
@@ -62,7 +53,7 @@ const Music = () => {
     const searchArtist = e.target.elements.artist.value.trim();
     if (searchArtist) {
       navigate(`/music/${encodeURIComponent(searchArtist).replace(/%20/g, '+')}`);
-      setRecommendationsFetched(false); // Reset the flag when a new search is made
+      setRecommendationsFetched(false);
     }
   };
 
@@ -80,7 +71,7 @@ const Music = () => {
         <>
           <ArtistInfo artistInfo={artistInfo} />
           <div className="main-content">
-            <h1 className='music-heading'>Music Recommendations</h1>
+            <h1 className='music-heading'>Related Artists</h1>
             <RecommendationGraph
               artists={recommendations}
               onArtistClick={handleArtistClick} // Pass the click handler

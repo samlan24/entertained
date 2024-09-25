@@ -1,10 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import './RecommendationGraph.css';
 
 const RecommendationGraph = ({ artists, onArtistClick }) => {
   const svgRef = useRef(null);
-  const simulationRef = useRef(null);
 
   useEffect(() => {
     if (!artists || artists.length === 0) return;
@@ -12,64 +11,71 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
     const svg = d3.select(svgRef.current);
     const width = 900;
     const height = 600;
+    const radius = Math.min(width, height) / 2;
 
     svg.attr("width", width).attr("height", height).selectAll("*").remove(); // Clear previous content
 
-    // Define the graph with a central node and connected nodes based on recommendations
-    const centralNode = { id: artists[0] }; // Assuming the first artist is the central node
-    const nodes = artists.map(artist => ({ id: artist })); // Assuming 'artists' is an array of artist names
-    const links = nodes.slice(1).map(node => ({
-      source: centralNode.id,
-      target: node.id,
-    distance: Math.random() * 100 + 50 // Random distance
-    }));
+    const g = svg.append("g")
+      .attr("transform", `translate(${width / 2},${height / 2})`); // Center the graph
 
-    // Example links creation based on some dummy data (adjust as necessary)
-    nodes.forEach((node, index) => {
-      if (index > 0) {
-        links.push({ source: nodes[0].id, target: node.id, distance: Math.random() * 100 + 50 }); // Random distance
-      }
-    });
+    const tree = d3.tree()
+      .size([2 * Math.PI, radius - 100]);
 
-    // Initialize force simulation
-    if (!simulationRef.current) {
-      simulationRef.current = d3.forceSimulation()
-        .force("link", d3.forceLink().id(d => d.id).distance(d => d.distance))
-        .force("charge", d3.forceManyBody().strength(-1000))
-        .force("center", d3.forceCenter(width / 2, height / 2));
-    }
+    const root = d3.hierarchy({ name: artists[0], children: artists.slice(1).map(artist => ({ name: artist })) });
 
-    const simulation = simulationRef.current;
-    simulation.nodes(nodes);
-    simulation.force("link").links(links);
+    tree(root);
 
-    // Create nodes (circles and labels)
-    const node = svg.append("g")
-      .selectAll(".node")
-      .data(nodes)
+    const link = g.selectAll(".link")
+      .data(root.links())
+      .enter().append("path")
+      .attr("class", "link")
+      .attr("d", d3.linkRadial()
+        .angle(d => d.x)
+        .radius(d => d.y));
+
+    const node = g.selectAll(".node")
+      .data(root.descendants())
       .enter().append("g")
-      .attr("class", "node clickable") // Add 'clickable' class
-      .on("click", (event, d) => onArtistClick(d.id)); // Handle click event
+      .attr("class", "node")
+      .attr("transform", d => `
+        rotate(${d.x * 180 / Math.PI - 90})
+        translate(${d.y},0)
+      `);
 
     node.append("circle")
-      .attr("r", 5)
-      .attr("fill", "lightblue");
+      .attr("r", 10) // Increased radius for better visibility
+      .attr("class", "clickable")
+      .on("click", (event, d) => {
+        event.stopPropagation();
+        onArtistClick(d.data.name);
+      });
 
     node.append("text")
-      .attr("x", 10)
-      .attr("y", 3)
-      .attr("font-size", "16px")
-      .attr("fill", "black")
-      .text(d => d.id);
+      .attr("dy", "0.35em")
+      .attr("x", d => d.x < Math.PI === !d.children ? 15 : -15)
+      .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+      .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+      .style("font-size", "12px")
+      .style("cursor", "pointer")
+      .text(d => d.data.name.length > 12 ? d.data.name.slice(0, 12) + '...' : d.data.name)
+      .on("click", (event, d) => {
+        event.stopPropagation();
+        onArtistClick(d.data.name);
+      });
 
-    // Update positions on each tick
-    simulation.on("tick", () => {
-      node.attr("transform", d => `translate(${d.x},${d.y})`);
-    });
+    // Rotate the entire group continuously
+    const rotateGraph = () => {
+      g.transition()
+        .duration(400) // Duration of rotation
+        .attr("transform", function () {
+          const angle = parseFloat(d3.select(this).attr("data-rotation") || 0);
+          return `translate(${width / 2},${height / 2}) rotate(${angle + 1})`;
+        })
+        .on("end", rotateGraph); // Loop the rotation
+    };
 
-    simulation.alpha(1).restart(); // Restart the simulation with new data
-
-  }, [artists, onArtistClick]); // Run effect whenever 'artists' changes
+    rotateGraph(); // Start the rotation
+  }, [artists]);
 
   return <svg ref={svgRef}></svg>;
 };
