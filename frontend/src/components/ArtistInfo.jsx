@@ -1,5 +1,9 @@
 // src/components/ArtistInfo.jsx
 import React from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import Music from './Music';
+import { faMusic } from '@fortawesome/free-solid-svg-icons';
+import {faSpotify, faYoutube, faInstagram} from '@fortawesome/free-brands-svg-icons';
 
 const ArtistInfo = ({ artistInfo }) => {
   return (
@@ -14,12 +18,12 @@ const ArtistInfo = ({ artistInfo }) => {
           <ul>
             {artistInfo.top_tracks.map((track, index) => (
               <li key={index}>
-                {track.name} {track.preview_url && <a href={track.preview_url} target="_blank" rel="noopener noreferrer">Preview</a>}
+                {track.name} {track.preview_url && <a href={track.preview_url} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faMusic} style={{ color: '#f13238' }}/></a>}
               </li>
             ))}
           </ul>
           {artistInfo.social_media && (
-            <p><strong>Social Media:</strong> <a href={artistInfo.social_media} target="_blank" rel="noopener noreferrer">Link</a></p>
+            <p><a href={artistInfo.social_media} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faSpotify} style={{color: 'green'}}/></a></p>
           )}
         </div>
       )}
