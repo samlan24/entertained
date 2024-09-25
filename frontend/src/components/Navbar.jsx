@@ -12,6 +12,7 @@ const Navbar = () => {
     if (artist.trim()) {
       const encodedArtist = encodeURIComponent(artist).replace(/%20/g, '+');
       navigate(`/music/${encodedArtist}`);
+      setArtist('');
     }
   };
 
