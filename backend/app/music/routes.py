@@ -5,15 +5,16 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import requests
 from app.config import Config
 
+
+ # Spotify setup
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+    client_id=Config.SPOTIFY_CLIENT_ID,
+    client_secret=Config.SPOTIFY_CLIENT_SECRET
+))
+
 @music.route('/recommendations', methods=['GET'])
 def get_recommendations():
     artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
-
-    # Spotify setup
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-        client_id=Config.SPOTIFY_CLIENT_ID,
-        client_secret=Config.SPOTIFY_CLIENT_SECRET
-    ))
 
     # Get artist ID
     results = sp.search(q=artist_name, type='artist')
@@ -45,11 +46,6 @@ def get_recommendations():
 def get_artist_info():
     artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
 
-    # Spotify setup
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-        client_id=Config.SPOTIFY_CLIENT_ID,
-        client_secret=Config.SPOTIFY_CLIENT_SECRET
-    ))
 
     # Get artist ID from Spotify
     results = sp.search(q=artist_name, type='artist')
@@ -79,12 +75,6 @@ def get_artist_suggestions():
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
 
-    # Spotify setup
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-        client_id=Config.SPOTIFY_CLIENT_ID,
-        client_secret=Config.SPOTIFY_CLIENT_SECRET
-    ))
-
     # Search for artists on Spotify
     results = sp.search(q=query, type='artist', limit=5)
     suggestions = [{'name': artist['name']} for artist in results['artists']['items']]
@@ -99,11 +89,6 @@ def get_song_recommendations():
     if not song_name:
         return jsonify({'error': 'Song name is required'}), 400
 
-    # Spotify setup
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-        client_id=Config.SPOTIFY_CLIENT_ID,
-        client_secret=Config.SPOTIFY_CLIENT_SECRET
-    ))
 
     # Get song ID from Spotify
     results = sp.search(q=song_name, type='track')
