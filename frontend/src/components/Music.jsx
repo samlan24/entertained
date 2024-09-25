@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
-import RecommendationGraph from './RecommendationGraph'; // Import the new component
+import RecommendationGraph from './RecommendationGraph';
 import ArtistInfo from './ArtistInfo';
 
 const Music = () => {
@@ -15,20 +15,24 @@ const Music = () => {
 
   useEffect(() => {
     if (artist) {
-      if (!recommendationsFetched) {
-        handleSearch(artist);
-      } else {
-        fetchArtistInfo(artist);
-      }
+      fetchArtistInfo(artist);
     }
   }, [artist]);
+
+  useEffect(() => {
+    if (artist && !recommendationsFetched) {
+      handleSearch(artist);
+    }
+  }, [artist, recommendationsFetched]);
 
   const handleSearch = async (searchArtist) => {
     try {
       const response = await axios.get(`http://localhost:5000/music/recommendations?artist=${searchArtist}`);
-      setRecommendations(response.data.artists);
+      const newRecommendations = response.data.artists;
+      if (JSON.stringify(newRecommendations) !== JSON.stringify(recommendations)) {
+        setRecommendations(newRecommendations);
+      }
       setRecommendationsFetched(true); // Set the flag to true after fetching recommendations
-      fetchArtistInfo(searchArtist); // Fetch artist info after setting recommendations
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     }
@@ -76,7 +80,7 @@ const Music = () => {
         <>
           <ArtistInfo artistInfo={artistInfo} />
           <div className="main-content">
-            <h1 className='music-heading'>Similar Artists</h1>
+            <h1 className='music-heading'>Music Recommendations</h1>
             <RecommendationGraph
               artists={recommendations}
               onArtistClick={handleArtistClick} // Pass the click handler

@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import './RecommendationGraph.css';
 
 const RecommendationGraph = ({ artists, onArtistClick }) => {
-  const [graphData, setGraphData] = useState(null);
-
-  // Set recommendations when artists prop changes
-  useEffect(() => {
-    if (artists && artists.length > 0) {
-      setGraphData(artists);  // Set graph data when artists is available
-    }
-  }, [artists]);
+  const svgRef = useRef(null);
+  const simulationRef = useRef(null);
 
   useEffect(() => {
-    if (!graphData) return;  // Do nothing if there's no graph data
+    if (!artists || artists.length === 0) return;
 
-    const svg = d3.select("#graph");
+    const svg = d3.select(svgRef.current);
     const width = 900;
     const height = 600;
 
     svg.attr("width", width).attr("height", height).selectAll("*").remove(); // Clear previous content
 
     // Define the graph with a central node and connected nodes based on recommendations
-    const nodes = graphData.map(artist => ({ id: artist })); // Assuming 'artists' is an array of artist names
-    const links = [];
+    const centralNode = { id: artists[0] }; // Assuming the first artist is the central node
+    const nodes = artists.map(artist => ({ id: artist })); // Assuming 'artists' is an array of artist names
+    const links = nodes.slice(1).map(node => ({
+      source: centralNode.id,
+      target: node.id,
+    distance: Math.random() * 100 + 50 // Random distance
+    }));
 
     // Example links creation based on some dummy data (adjust as necessary)
     nodes.forEach((node, index) => {
@@ -33,10 +32,16 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
     });
 
     // Initialize force simulation
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.distance))
-      .force("charge", d3.forceManyBody().strength(-1000))
-      .force("center", d3.forceCenter(width / 2, height / 2));
+    if (!simulationRef.current) {
+      simulationRef.current = d3.forceSimulation()
+        .force("link", d3.forceLink().id(d => d.id).distance(d => d.distance))
+        .force("charge", d3.forceManyBody().strength(-1000))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+    }
+
+    const simulation = simulationRef.current;
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
 
     // Create nodes (circles and labels)
     const node = svg.append("g")
@@ -62,9 +67,11 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
       node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
-  }, [graphData, onArtistClick]); // Run effect whenever 'graphData' changes
+    simulation.alpha(1).restart(); // Restart the simulation with new data
 
-  return <svg id="graph"></svg>;
+  }, [artists, onArtistClick]); // Run effect whenever 'artists' changes
+
+  return <svg ref={svgRef}></svg>;
 };
 
 export default RecommendationGraph;
