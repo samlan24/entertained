@@ -1,9 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import './RecommendationGraph.css';
 
 const RecommendationGraph = ({ artists, onArtistClick }) => {
+  const [graphData, setGraphData] = useState(null);
+
+  // Set recommendations when artists prop changes
   useEffect(() => {
+    if (artists && artists.length > 0) {
+      setGraphData(artists);  // Set graph data when artists is available
+    }
+  }, [artists]);
+
+  useEffect(() => {
+    if (!graphData) return;  // Do nothing if there's no graph data
+
     const svg = d3.select("#graph");
     const width = 900;
     const height = 600;
@@ -11,10 +22,10 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
     svg.attr("width", width).attr("height", height).selectAll("*").remove(); // Clear previous content
 
     // Define the graph with a central node and connected nodes based on recommendations
-    const nodes = artists.map(artist => ({ id: artist })); // Assuming 'artists' is an array of artist names
-    const links = []; // Create links based on some logic (e.g., similarity scores)
+    const nodes = graphData.map(artist => ({ id: artist })); // Assuming 'artists' is an array of artist names
+    const links = [];
 
-    // Example links creation based on some dummy data (you may want to fetch this dynamically)
+    // Example links creation based on some dummy data (adjust as necessary)
     nodes.forEach((node, index) => {
       if (index > 0) {
         links.push({ source: nodes[0].id, target: node.id, distance: Math.random() * 100 + 50 }); // Random distance
@@ -51,7 +62,7 @@ const RecommendationGraph = ({ artists, onArtistClick }) => {
       node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
-  }, [artists, onArtistClick]); // Run effect whenever 'artists' or 'onArtistClick' prop changes
+  }, [graphData, onArtistClick]); // Run effect whenever 'graphData' changes
 
   return <svg id="graph"></svg>;
 };
