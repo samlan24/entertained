@@ -72,3 +72,54 @@ def get_artist_info():
     }
 
     return jsonify(artist_info)
+
+@music.route('/artist-suggestions', methods=['GET'])
+def get_artist_suggestions():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({'error': 'Query parameter is required'}), 400
+
+    # Spotify setup
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+        client_id=Config.SPOTIFY_CLIENT_ID,
+        client_secret=Config.SPOTIFY_CLIENT_SECRET
+    ))
+
+    # Search for artists on Spotify
+    results = sp.search(q=query, type='artist', limit=5)
+    suggestions = [{'name': artist['name']} for artist in results['artists']['items']]
+
+    return jsonify({'suggestions': suggestions})
+
+
+
+@music.route('/song-recommendations', methods=['GET'])
+def get_song_recommendations():
+    song_name = request.args.get('song')
+    if not song_name:
+        return jsonify({'error': 'Song name is required'}), 400
+
+    # Spotify setup
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+        client_id=Config.SPOTIFY_CLIENT_ID,
+        client_secret=Config.SPOTIFY_CLIENT_SECRET
+    ))
+
+    # Get song ID from Spotify
+    results = sp.search(q=song_name, type='track')
+    if not results['tracks']['items']:
+        return jsonify({'error': 'Song not found'}), 404
+    song = results['tracks']['items'][0]
+    song_id = song['id']
+    song_genres = sp.artist(song['artists'][0]['id'])['genres']
+
+    # Get recommendations based on song genre
+    recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=10)['tracks']
+    similar_songs = [{'name': track['name'], 'artist': track['artists'][0]['name'], 'preview_url': track.get('preview_url')} for track in recommendations]
+
+    # Create final recommendation object
+    song_recommendations = {
+        'songs': similar_songs
+    }
+
+    return jsonify(song_recommendations)
