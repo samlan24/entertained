@@ -5,6 +5,7 @@ import '../App.css';
 import RecommendationGraph from './RecommendationGraph';
 import ArtistInfo from './ArtistInfo';
 
+
 const Music = () => {
   const { artist } = useParams();
   const [recommendations, setRecommendations] = useState([]);
@@ -71,6 +72,7 @@ const Music = () => {
         <>
           <ArtistInfo artistInfo={artistInfo} />
           <div className="main-content">
+
             <h1 className='music-heading'>Related Artists</h1>
             <RecommendationGraph
               artists={recommendations}

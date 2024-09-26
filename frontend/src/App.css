@@ -8,7 +8,7 @@
   width: 25%;
   padding: 20px;
   background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
-  border-radius: 15px;
+  border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto; /* Enable scrolling for the sidebar */
   max-height: 100vh; /* Set the maximum height to the full viewport height */
@@ -56,8 +56,6 @@
   overflow: hidden; /* Prevent content from affecting the main container */
 }
 
-
-
 /* src/App.css */
 /* Hide scrollbar but keep the scroll functionality */
 .sidebar {
@@ -68,4 +66,9 @@
 
 .sidebar::-webkit-scrollbar {
   display: none;  /* For Chrome, Safari, and Opera */
+}
+
+.sidebar button{
+  border: none;
+  font-size: 16px;
 }

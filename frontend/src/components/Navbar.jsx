@@ -1,19 +1,15 @@
 // src/components/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SearchForm from './SearchForm'; // Import the SearchForm
 import './Navbar.css';
 
 const Navbar = () => {
-  const [artist, setArtist] = useState('');
   const navigate = useNavigate();
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (artist.trim()) {
-      const encodedArtist = encodeURIComponent(artist).replace(/%20/g, '+');
-      navigate(`/music/${encodedArtist}`);
-      setArtist('');
-    }
+  const handleSearch = (query) => {
+    const encodedArtist = encodeURIComponent(query).replace(/%20/g, '+');
+    navigate(`/music/${encodedArtist}`);
   };
 
   return (
@@ -25,17 +21,10 @@ const Navbar = () => {
         <li className="navbar-item">
           <Link to="/blog">Blog</Link>
         </li>
+        <li className="navbar-item">
+          <SearchForm placeholder="Search for artists..." onSearch={handleSearch} />
+        </li>
       </ul>
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          placeholder="Enter artist name"
-          className="search-input"
-        />
-        <button type="submit" className="search-button">Search</button>
-      </form>
     </nav>
   );
 };
