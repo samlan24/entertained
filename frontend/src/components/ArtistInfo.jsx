@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
@@ -6,6 +6,12 @@ import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 const ArtistInfo = ({ artistInfo }) => {
   const [playingTrack, setPlayingTrack] = useState(null);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2; // Set initial volume to 20%
+    }
+  }, []);
 
   const handlePlayPause = (track) => {
     // If the track is already playing, pause it
