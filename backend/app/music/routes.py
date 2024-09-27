@@ -69,6 +69,8 @@ def get_artist_info():
 
     return jsonify(artist_info)
 
+
+# enables a dropdown search bar for the user to search for artists
 @music.route('/artist-suggestions', methods=['GET'])
 def get_artist_suggestions():
     query = request.args.get('query')
@@ -81,14 +83,11 @@ def get_artist_suggestions():
 
     return jsonify({'suggestions': suggestions})
 
-
-
-@music.route('/song-recommendations', methods=['GET'])
+@music.route('/similar-songs', methods=['GET'])
 def get_song_recommendations():
     song_name = request.args.get('song')
     if not song_name:
         return jsonify({'error': 'Song name is required'}), 400
-
 
     # Get song ID from Spotify
     results = sp.search(q=song_name, type='track')
@@ -98,13 +97,63 @@ def get_song_recommendations():
     song_id = song['id']
     song_genres = sp.artist(song['artists'][0]['id'])['genres']
 
-    # Get recommendations based on song genre
-    recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=10)['tracks']
-    similar_songs = [{'name': track['name'], 'artist': track['artists'][0]['name'], 'preview_url': track.get('preview_url')} for track in recommendations]
+    # Get song details
+    song_details = {
+        'name': song['name'],
+        'artist': song['artists'][0]['name'],
+        'album': song['album']['name'],
+        'release_date': song['album']['release_date'],
+        'duration_ms': song['duration_ms'],
+        'preview_url': song.get('preview_url')
+    }
+
+    # Get recommendations from Spotify
+    spotify_recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=20)['tracks']
+    spotify_songs = [{'name': track['name'], 'artist': track['artists'][0]['name'], 'preview_url': track.get('preview_url')} for track in spotify_recommendations]
+
+    # Get recommendations from Last.fm
+    last_fm_api_key = Config.LASTFM_API_KEY
+    last_fm_url = f'http://ws.audioscrobbler.com/2.0/?method=track.getsimilar&track={song_name}&api_key={last_fm_api_key }&format=json'
+    last_fm_response = requests.get(last_fm_url)
+    last_fm_data = last_fm_response.json()
+    last_fm_songs = [{'name': track['name'], 'artist': track['artist']['name'], 'preview_url': None} for track in last_fm_data.get('similartracks', {}).get('track', [])]
+
+    # Combine results and remove duplicates using set
+    unique_songs_set = set()
+    unique_songs = []
+
+    for song in spotify_songs + last_fm_songs:
+        song_identifier = f"{song['name']} - {song['artist']}"
+        if song_identifier not in unique_songs_set:
+            unique_songs_set.add(song_identifier)
+            unique_songs.append(song)
 
     # Create final recommendation object
     song_recommendations = {
-        'songs': similar_songs
+        'song_details': song_details,
+        'similar_songs': unique_songs
     }
 
     return jsonify(song_recommendations)
+
+
+# show song recommendations based on the user's input
+@music.route('/song-suggestions', methods=['GET'])
+def get_song_suggestions():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({'error': 'Query parameter is required'}), 400
+
+    # Search for the song on Spotify
+    results = sp.search(q=query, type='track', limit=1)
+    if not results['tracks']['items']:
+        return jsonify({'error': 'Song not found'}), 404
+    song = results['tracks']['items'][0]
+    song_id = song['id']
+    song_genres = sp.artist(song['artists'][0]['id'])['genres']
+
+    # Get recommendations from Spotify
+    spotify_recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=10)['tracks']
+    recommendations = [{'name': track['name'], 'artist': track['artists'][0]['name']} for track in spotify_recommendations]
+
+    return jsonify({'recommendations': recommendations})
