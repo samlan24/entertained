@@ -97,14 +97,15 @@ def get_song_recommendations():
     song_id = song['id']
     song_genres = sp.artist(song['artists'][0]['id'])['genres']
 
-    # Get song details
+     # Get song details
     song_details = {
         'name': song['name'],
         'artist': song['artists'][0]['name'],
         'album': song['album']['name'],
         'release_date': song['album']['release_date'],
         'duration_ms': song['duration_ms'],
-        'preview_url': song.get('preview_url')
+        'preview_url': song.get('preview_url'),
+        'image_url': song['album']['images'][0]['url'] if song['album']['images'] else None  # Fetch the image URL
     }
 
     # Get recommendations from Spotify
@@ -137,23 +138,3 @@ def get_song_recommendations():
     return jsonify(song_recommendations)
 
 
-# show song recommendations based on the user's input
-@music.route('/song-suggestions', methods=['GET'])
-def get_song_suggestions():
-    query = request.args.get('query')
-    if not query:
-        return jsonify({'error': 'Query parameter is required'}), 400
-
-    # Search for the song on Spotify
-    results = sp.search(q=query, type='track', limit=1)
-    if not results['tracks']['items']:
-        return jsonify({'error': 'Song not found'}), 404
-    song = results['tracks']['items'][0]
-    song_id = song['id']
-    song_genres = sp.artist(song['artists'][0]['id'])['genres']
-
-    # Get recommendations from Spotify
-    spotify_recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=10)['tracks']
-    recommendations = [{'name': track['name'], 'artist': track['artists'][0]['name']} for track in spotify_recommendations]
-
-    return jsonify({'recommendations': recommendations})
