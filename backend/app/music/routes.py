@@ -2,15 +2,32 @@ from . import music
 from flask import jsonify, request
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from googleapiclient.discovery import build
 import requests
 from app.config import Config
 
-
- # Spotify setup
+# Spotify setup
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
     client_id=Config.SPOTIFY_CLIENT_ID,
     client_secret=Config.SPOTIFY_CLIENT_SECRET
 ))
+
+MUSIXMATCH_API_KEY = Config.MUSIXMATCH_API_KEY
+# Initialize YouTube API
+# youtube = build('youtube', 'v3', developerKey=Config.YOUTUBE_API_KEY)
+
+"""
+def get_youtube_link(track_name, artist_name):
+    search_response = youtube.search().list(
+        q=f"{track_name} {artist_name}",
+        part='id,snippet',
+        maxResults=1
+    ).execute()
+
+    if search_response['items']:
+        video_id = search_response['items'][0]['id']['videoId']
+        return f"https://www.youtube.com/watch?v={video_id}"
+    return None
 
 @music.route('/recommendations', methods=['GET'])
 def get_recommendations():
@@ -41,11 +58,11 @@ def get_recommendations():
     }
 
     return jsonify(recommendations)
+"""
 
 @music.route('/artist-info', methods=['GET'])
 def get_artist_info():
     artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
-
 
     # Get artist ID from Spotify
     results = sp.search(q=artist_name, type='artist')
@@ -55,8 +72,18 @@ def get_artist_info():
     artist_id = artist['id']
 
     # Get top tracks from Spotify
-    top_tracks = sp.artist_top_tracks(artist_id)['tracks'][:5]
-    top_tracks_info = [{'name': track['name'], 'preview_url': track.get('preview_url')} for track in top_tracks]
+    top_tracks = sp.artist_top_tracks(artist_id)['tracks'][:10]
+    top_tracks_info = []
+
+    # Iterate through the top tracks to get YouTube links
+    for track in top_tracks:
+        #youtube_link = get_youtube_link(track['name'], artist_name)
+        track_info = {
+            'name': track['name'],
+            'preview_url': track.get('preview_url'),
+            #'youtube_link': youtube_link  # Fetch YouTube link for each track
+        }
+        top_tracks_info.append(track_info)
 
     # Combine results
     artist_info = {
@@ -68,7 +95,6 @@ def get_artist_info():
     }
 
     return jsonify(artist_info)
-
 
 # enables a dropdown search bar for the user to search for artists
 @music.route('/artist-suggestions', methods=['GET'])
@@ -82,59 +108,3 @@ def get_artist_suggestions():
     suggestions = [{'name': artist['name']} for artist in results['artists']['items']]
 
     return jsonify({'suggestions': suggestions})
-
-@music.route('/similar-songs', methods=['GET'])
-def get_song_recommendations():
-    song_name = request.args.get('song')
-    if not song_name:
-        return jsonify({'error': 'Song name is required'}), 400
-
-    # Get song ID from Spotify
-    results = sp.search(q=song_name, type='track')
-    if not results['tracks']['items']:
-        return jsonify({'error': 'Song not found'}), 404
-    song = results['tracks']['items'][0]
-    song_id = song['id']
-    song_genres = sp.artist(song['artists'][0]['id'])['genres']
-
-     # Get song details
-    song_details = {
-        'name': song['name'],
-        'artist': song['artists'][0]['name'],
-        'album': song['album']['name'],
-        'release_date': song['album']['release_date'],
-        'duration_ms': song['duration_ms'],
-        'preview_url': song.get('preview_url'),
-        'image_url': song['album']['images'][0]['url'] if song['album']['images'] else None  # Fetch the image URL
-    }
-
-    # Get recommendations from Spotify
-    spotify_recommendations = sp.recommendations(seed_tracks=[song_id], seed_genres=song_genres, limit=20)['tracks']
-    spotify_songs = [{'name': track['name'], 'artist': track['artists'][0]['name'], 'preview_url': track.get('preview_url')} for track in spotify_recommendations]
-
-    # Get recommendations from Last.fm
-    last_fm_api_key = Config.LASTFM_API_KEY
-    last_fm_url = f'http://ws.audioscrobbler.com/2.0/?method=track.getsimilar&track={song_name}&api_key={last_fm_api_key }&format=json'
-    last_fm_response = requests.get(last_fm_url)
-    last_fm_data = last_fm_response.json()
-    last_fm_songs = [{'name': track['name'], 'artist': track['artist']['name'], 'preview_url': None} for track in last_fm_data.get('similartracks', {}).get('track', [])]
-
-    # Combine results and remove duplicates using set
-    unique_songs_set = set()
-    unique_songs = []
-
-    for song in spotify_songs + last_fm_songs:
-        song_identifier = f"{song['name']} - {song['artist']}"
-        if song_identifier not in unique_songs_set:
-            unique_songs_set.add(song_identifier)
-            unique_songs.append(song)
-
-    # Create final recommendation object
-    song_recommendations = {
-        'song_details': song_details,
-        'similar_songs': unique_songs
-    }
-
-    return jsonify(song_recommendations)
-
-
