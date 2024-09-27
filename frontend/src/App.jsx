@@ -6,7 +6,7 @@ import Music from './components/Music';
 import Blog from './components/Blog';
 import Navbar from './components/Navbar';
 
-import SongSearch from './components/SongSearch'; // Import the new SongSearch component
+
 
 const App = () => {
   return (
@@ -18,7 +18,7 @@ const App = () => {
 
         <Route path="/blog" element={<Blog />} />
 
-        <Route path="/song-search" element={<SongSearch />} /> {/* Add route for SongSearch component */}
+
       </Routes>
     </Router>
   );
