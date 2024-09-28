@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from app.config import Config
+from .config import Config
 from flask_caching import Cache
 
 cache = Cache()
@@ -20,7 +20,7 @@ def create_app():
 
 
 
-    from app.music import music
+    from .music import music
     app.register_blueprint(music, url_prefix='/music')
 
     @app.route('/')
