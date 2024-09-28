@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './SearchForm.css'; // Add styles for better presentation
+import './SearchForm.css';
 
 const SearchForm = ({ placeholder, onSearch }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [inputPlaceholder, setInputPlaceholder] = useState('Enter artist name'); // Directly set placeholder
+  const [inputPlaceholder, setInputPlaceholder] = useState('Enter artist name');
 
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (query.trim()) {
         try {
-          const response = await axios.get(`http://127.0.0.1:5000/music/artist-suggestions?query=${query}`);
+          const response = await axios.get(`https://entertained-4.onrender.com/music/artist-suggestions?query=${query}`);
           setSuggestions(response.data.suggestions);
         } catch (error) {
           console.error('Error fetching suggestions:', error);
@@ -28,7 +28,7 @@ const SearchForm = ({ placeholder, onSearch }) => {
     e.preventDefault();
     if (query.trim()) {
       onSearch(query, 'artist');
-      clearInputAndSuggestions(); // Clear input and suggestions after search
+      clearInputAndSuggestions();
     }
   };
 
