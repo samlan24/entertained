@@ -28,7 +28,7 @@ def get_youtube_link(track_name, artist_name):
         video_id = search_response['items'][0]['id']['videoId']
         return f"https://www.youtube.com/watch?v={video_id}"
     return None
-
+"""
 @music.route('/recommendations', methods=['GET'])
 def get_recommendations():
     artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
@@ -58,7 +58,7 @@ def get_recommendations():
     }
 
     return jsonify(recommendations)
-"""
+
 
 @music.route('/artist-info', methods=['GET'])
 def get_artist_info():
