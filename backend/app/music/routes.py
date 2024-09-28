@@ -2,9 +2,9 @@ from . import music
 from flask import jsonify, request
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from googleapiclient.discovery import build
 import requests
 from app.config import Config
+from app import cache
 
 # Spotify setup
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
@@ -12,31 +12,15 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
     client_secret=Config.SPOTIFY_CLIENT_SECRET
 ))
 
-MUSIXMATCH_API_KEY = Config.MUSIXMATCH_API_KEY
-# Initialize YouTube API
-# youtube = build('youtube', 'v3', developerKey=Config.YOUTUBE_API_KEY)
-
-"""
-def get_youtube_link(track_name, artist_name):
-    search_response = youtube.search().list(
-        q=f"{track_name} {artist_name}",
-        part='id,snippet',
-        maxResults=1
-    ).execute()
-
-    if search_response['items']:
-        video_id = search_response['items'][0]['id']['videoId']
-        return f"https://www.youtube.com/watch?v={video_id}"
-    return None
-"""
 @music.route('/recommendations', methods=['GET'])
 def get_recommendations():
-    artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
+    """Route to recommend similar artists based on the provided artist name"""
+    artist_name = request.args.get('artist', 'Adele')
 
     # Get artist ID
     results = sp.search(q=artist_name, type='artist')
     if not results['artists']['items']:
-        return jsonify({'artists': []})  # Return empty list if no artist found
+        return jsonify({'artists': []})
     artist_id = results['artists']['items'][0]['id']
 
     # Get similar artists from Spotify
@@ -62,26 +46,27 @@ def get_recommendations():
 
 @music.route('/artist-info', methods=['GET'])
 def get_artist_info():
-    artist_name = request.args.get('artist', 'Adele')  # Default to 'Adele' if no artist is provided
+    """route to get artist information"""
+    artist_name = request.args.get('artist', 'Adele')
 
-    # Get artist ID from Spotify
+
     results = sp.search(q=artist_name, type='artist')
     if not results['artists']['items']:
         return jsonify({'error': 'Artist not found'}), 404
     artist = results['artists']['items'][0]
     artist_id = artist['id']
 
-    # Get top tracks from Spotify
+
     top_tracks = sp.artist_top_tracks(artist_id)['tracks'][:10]
     top_tracks_info = []
 
-    # Iterate through the top tracks to get YouTube links
+
     for track in top_tracks:
-        #youtube_link = get_youtube_link(track['name'], artist_name)
+
         track_info = {
             'name': track['name'],
             'preview_url': track.get('preview_url'),
-            #'youtube_link': youtube_link  # Fetch YouTube link for each track
+
         }
         top_tracks_info.append(track_info)
 
@@ -96,9 +81,10 @@ def get_artist_info():
 
     return jsonify(artist_info)
 
-# enables a dropdown search bar for the user to search for artists
+
 @music.route('/artist-suggestions', methods=['GET'])
 def get_artist_suggestions():
+    """Route to get artist suggestions based on the query"""
     query = request.args.get('query')
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
@@ -108,3 +94,5 @@ def get_artist_suggestions():
     suggestions = [{'name': artist['name']} for artist in results['artists']['items']]
 
     return jsonify({'suggestions': suggestions})
+
+

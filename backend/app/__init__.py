@@ -1,6 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
 from app.config import Config
+from flask_caching import Cache
+
+cache = Cache()
 
 def create_app():
     app = Flask(__name__)
@@ -8,6 +11,7 @@ def create_app():
 
     # Initialize CORS
     CORS(app, origins=['http://localhost:5173'], supports_credentials=True)
+    cache.init_app(app, config={'CACHE_TYPE': 'simple'})
 
 
 
