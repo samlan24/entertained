@@ -1,7 +1,6 @@
-// src/components/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import SearchForm from './SearchForm'; // Import the SearchForm
+import SearchForm from './SearchForm';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -17,10 +16,6 @@ const Navbar = () => {
       <ul className="navbar-list">
         <li className="navbar-item">
           <Link to="/">Home</Link>
-        </li>
-
-        <li className="navbar-item">
-          <Link to="/blog">Blog</Link>
         </li>
         <li className="navbar-item">
           <SearchForm placeholder="Search for artists..." onSearch={handleSearch} />

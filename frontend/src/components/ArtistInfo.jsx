@@ -9,7 +9,7 @@ const ArtistInfo = ({ artistInfo }) => {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = 0.2; // Set initial volume to 20%
+      audioRef.current.volume = 0.2;
     }
   }, []);
 

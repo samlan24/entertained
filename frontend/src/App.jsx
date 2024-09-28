@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './fontAwesome';
 import Home from './components/Home';
 import Music from './components/Music';
-import Blog from './components/Blog';
 import Navbar from './components/Navbar';
 
 
@@ -15,10 +14,6 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/music/:artist" element={<Music />} />
-
-        <Route path="/blog" element={<Blog />} />
-
-
       </Routes>
     </Router>
   );
