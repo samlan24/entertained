@@ -12,7 +12,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
     client_secret=Config.SPOTIFY_CLIENT_SECRET
 ))
 
-@music.route('/recommendations', methods=['GET'])
+@music.route('/', methods=['GET'])
 def get_recommendations():
     """Route to recommend similar artists based on the provided artist name"""
     artist_name = request.args.get('artist', 'Adele')

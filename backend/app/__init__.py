@@ -17,14 +17,8 @@ def create_app():
 
 
     # Register the blueprints
-
-
-
     from .music import music
-    app.register_blueprint(music, url_prefix='/music')
+    app.register_blueprint(music)
 
-    @app.route('/')
-    def hello():
-        return 'Hello, World!'
 
     return app
