@@ -3,8 +3,8 @@ from flask import jsonify, request
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
-from app.config import Config
-from app import cache
+from ..config import Config
+from .. import cache
 
 # Spotify setup
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
