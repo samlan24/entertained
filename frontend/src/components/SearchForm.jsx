@@ -11,7 +11,7 @@ const SearchForm = ({ placeholder, onSearch }) => {
     const fetchSuggestions = async () => {
       if (query.trim()) {
         try {
-          const response = await axios.get(`https://entertained-4.onrender.com/music/artist-suggestions?query=${query}`);
+          const response = await axios.get(`http://localhost:5000/music/artist-suggestions?query=${query}`);
           setSuggestions(response.data.suggestions);
         } catch (error) {
           console.error('Error fetching suggestions:', error);

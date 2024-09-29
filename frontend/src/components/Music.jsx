@@ -23,7 +23,7 @@ const Music = () => {
 
   const handleSearch = async (searchArtist) => {
     try {
-      const response = await axios.get(`https://entertained-4.onrender.com/music/recommendations?artist=${searchArtist}`);
+      const response = await axios.get(`http://localhost:5000/music/recommendations?artist=${searchArtist}`);
       const newRecommendations = response.data.artists;
       if (JSON.stringify(newRecommendations) !== JSON.stringify(recommendations)) {
         setRecommendations(newRecommendations);
@@ -36,7 +36,7 @@ const Music = () => {
 
   const fetchArtistInfo = async (artistName) => {
     try {
-      const response = await axios.get(`https://entertained-4.onrender.com/music/artist-info?artist=${artistName}`);
+      const response = await axios.get(`http://localhost:5000/music/artist-info?artist=${artistName}`);
       setArtistInfo(response.data);
     } catch (error) {
       console.error('Error fetching artist info:', error);
